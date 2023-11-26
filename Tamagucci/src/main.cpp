@@ -260,21 +260,24 @@ void comerTask(void *p) {
   while(1) {
     //xSemaphoreTake(salir, portMAX_DELAY)
 
-    if (left && menuState>0) 
+    if (left) 
     {
       menuState -= 1;
       left = false;
+      xSemaphoreGive(comer);
     }
     else if (mid) {
-      enterFlag = true;
+      comerFlag = true;
       mid = false;
     }
-    else if (right && menuState<4) {
-      menuState += 1;
+
+    else if (right) {
+      comerState += 1;
       right = false;
     }
-    
   }
+
+
 }
 
 void asearTask(void *p) {

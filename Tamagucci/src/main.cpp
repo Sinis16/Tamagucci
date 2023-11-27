@@ -2,7 +2,7 @@
 #include <ESP32Time.h>
 #include "driver/gpio.h"
 #include "stdio.h"
-
+#include <string>
 
 //PIN DEFINITION
 #define BUTTON_PIN_FLAG 0
@@ -447,9 +447,9 @@ void moriohTraques() {
     moriohTraquesCounter += 1;
     vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
   }
-
-  sprintf(txbuffMoriohTraques, moriohTraquesCounter);
-  //xQueueSend(moriohTraquesQ, (void*)txbuffMoriohTraques, (TickType_t)0);
+  char sol[50] = {(char)moriohTraquesCounter};
+  sprintf(txbuffMoriohTraques, sol);
+  xQueueSend(moriohTraquesQ, (void*)txbuffMoriohTraques, (TickType_t)0);
   moriohTraquesFlag = false;
   moriohTraquesCounter = 0;
   xSemaphoreGive(videojuegos);
@@ -457,7 +457,6 @@ void moriohTraques() {
   
   
 }
-
 
 //Idle
 void idle(void *p) {
@@ -567,24 +566,16 @@ void idle(void *p) {
         }
 String juegos[5] = {"Salir", "Moriohtraques", "Lozanoaventuras", "Where's Freddy", "Amogus"};
 
-      char rxbuffJugar[50];
-        if(xQueueReceive(jugarQ, &(rxbuffJugar), (TickType_t)5)){
-          String compararJuego = rxbuffJugar;
-          if(compararJuego == "Amogus") {
-            Serial.print("AMOGOS");
-          }
-          else if(compararJuego == "Moriohtraques") {
-            Serial.print("AIUA ME VA A MATAR");
-            moriohTraques();
-          }
-          else if(compararJuego == "Lozanoaventuras") {
-            Serial.print("OTRA TAREA...");
-          }
-          else if(compararJuego == "Where's Freddy") {
-            Serial.print("NO SE U-U");
-          }
+      char rxbuffMoriohTraques[50];
+        if(xQueueReceive(jugarQ, &(rxbuffMoriohTraques), (TickType_t)5)){
+          int conteo = atoi(rxbuffMoriohTraques);
+          if(true) {
+            Serial.print(conteo);
+            Serial.print("llegamos");
+          
           
           vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
+        }
         }
   }
 }

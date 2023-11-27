@@ -17,6 +17,9 @@ bool left = false;
 bool mid = false;
 bool right = false;
 
+//Fixes
+int start = 0;
+
 //Stats Variables
 int life = 100;
 int happiness = 100;
@@ -63,6 +66,7 @@ TaskHandle_t botonRight = NULL;
 SemaphoreHandle_t pasivos = NULL;
 TaskHandle_t idleH = NULL;
 TaskHandle_t statsH = NULL;
+TaskHandle_t menuH = NULL;
 
 //Activos: Menu y demas
 SemaphoreHandle_t salir = NULL;
@@ -87,7 +91,7 @@ void buttonTaskLeft(void *p)
     left = true;
     vTaskSuspend(NULL);
     Serial.print("AmogosLeft \r\n");
-    vTaskDelay(10 * configTICK_RATE_HZ / 1000);
+    vTaskDelay(100 * configTICK_RATE_HZ / 1000);
     
   }
 }
@@ -99,7 +103,7 @@ void buttonTaskMid(void *p)
     mid = true;
     vTaskSuspend(NULL);
     Serial.print("AmogosMid \r\n");
-    vTaskDelay(10 * configTICK_RATE_HZ / 1000);
+    vTaskDelay(100 * configTICK_RATE_HZ / 1000);
   }
 }
 
@@ -110,7 +114,7 @@ void buttonTaskRight(void *p)
     right = true;
     vTaskSuspend(NULL);
     Serial.print("AmogosRight \r\n");
-    vTaskDelay(10 * configTICK_RATE_HZ / 1000);
+    vTaskDelay(100 * configTICK_RATE_HZ / 1000);
   }
 }
 
@@ -172,31 +176,36 @@ void idle(void *p)
 {
   
   while(1) {
+
+    //xSemaphoreTake(salir, portMAX_DELAY);
+
     Serial.print("Phrog");
     vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
     if (left) 
     {
       state = 1;
       left = false;
+      start += 1;
     }
     else if (mid) {
       state = 2;
       mid = false;
+      start += 1;
     }
     else if (right) {
       state = 3;
       right = false;
+      start += 1;
     }
 
-    while(state>0)
+    while(state>0 && start > 6)
     {
       Serial.print(state);
       if (state == 1) {
         state = 0;
-        xSemaphoreGive(pasivos);
-        vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
       }
       if (state == 2) {
+        state = 0;
         xSemaphoreGive(salir);
         vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
       }
@@ -204,7 +213,10 @@ void idle(void *p)
         state = 0;
       }
     }
-
+    Serial.print(start);
+    if (start<7) {
+      Serial.print("bajo");
+    }
 
   }
 }
@@ -222,9 +234,14 @@ void stats(void *p) {
 
 void menu(void *p) {
   while(1) {
+    vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
 
-    //xSemaphoreTake(salir, portMAX_DELAY)
+    if(xSemaphoreTake(salir, portMAX_DELAY))
+    {
+    
 
+    vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
+    
     if (left && menuState>0) 
     {
       menuState -= 1;
@@ -249,6 +266,7 @@ void menu(void *p) {
       xSemaphoreGive(semaforos[menuState]);
     }
 
+    }
   }
 }
 
@@ -258,7 +276,9 @@ void jugarTask(void *p) {
 
 void comerTask(void *p) {
   while(1) {
-    //xSemaphoreTake(salir, portMAX_DELAY)
+    if(xSemaphoreTake(comer, portMAX_DELAY))
+    {
+    
 
     if (left) 
     {
@@ -275,6 +295,8 @@ void comerTask(void *p) {
       comerState += 1;
       right = false;
     }
+  }
+
   }
 
 
@@ -297,20 +319,23 @@ void setup() {
 
   // Create two tasks
   pasivos = xSemaphoreCreateBinary();
-  salir = xSemaphoreCreateMutex();
-  jugar = xSemaphoreCreateMutex();
-  comer = xSemaphoreCreateMutex();
-  asear = xSemaphoreCreateMutex();
-  comprar = xSemaphoreCreateMutex();
+  salir = xSemaphoreCreateBinary();
+  jugar = xSemaphoreCreateBinary();
+  comer = xSemaphoreCreateBinary();
+  asear = xSemaphoreCreateBinary();
+  comprar = xSemaphoreCreateBinary();
   xTaskCreate(buttonTaskLeft, "buttonPressLeft", 4096, NULL, 10, &botonLeft);
   xTaskCreate(buttonTaskMid, "buttonPressMid", 4096, NULL, 10, &botonMid);
   xTaskCreate(buttonTaskRight, "buttonPressRight", 4096, NULL, 10, &botonRight);
-  xTaskCreate(idle, "trialtask", 4096, NULL, 200, &idleH);
-  xTaskCreate(stats, "menuTask", 4096, NULL, 10, &statsH);
+  xTaskCreate(idle, "idletask", 4096, NULL, 200, &idleH);
+  xTaskCreate(stats, "statsTask", 4096, NULL, 10, &statsH);
+  xTaskCreate(menu, "menuTask", 4096, NULL, 10, &menuH);
 
 
   // Start the FreeRTOS scheduler
   vTaskStartScheduler();
+
+  xSemaphoreGive(salir);
 
   while(1) {
 

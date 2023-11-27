@@ -83,6 +83,40 @@ TaskHandle_t comprarH = NULL;
 
 //FUNCTIONS
 
+//Menu
+
+void menu() {
+  xSemaphoreTake(salir, portMAX_DELAY);
+  while(1 && !enterFlag) {
+
+    vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
+
+    if (left && menuState>0) 
+    {
+      menuState -= 1;
+      left = false;
+    }
+    else if (mid) {
+      enterFlag = true;
+      mid = false;
+    }
+    else if (right && menuState<4) {
+      menuState += 1;
+      right = false;
+    }
+
+    SemaphoreHandle_t semaforos[5] = {salir, jugar, comer, asear, comprar};
+
+    String semaforosPrint[5] = {"salir", "jugar", "comer", "asear", "comprar"};
+    Serial.print(semaforosPrint[menuState]);
+    Serial.print(enterFlag);
+    
+  }
+  enterFlag = false;
+  xSemaphoreGive(salir);
+  vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
+}
+
 //Buttons
 void buttonTaskLeft(void *p) 
 {
@@ -203,10 +237,12 @@ void idle(void *p)
       Serial.print(state);
       if (state == 1) {
         state = 0;
+        xSemaphoreGive(pasivos);
+        vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
       }
       if (state == 2) {
         state = 0;
-        xSemaphoreGive(salir);
+        menu();
         vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
       }
       if (state == 3) {
@@ -230,45 +266,6 @@ void stats(void *p) {
 }
 
 
-//Menu
-
-void menu(void *p) {
-  while(1) {
-    vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
-
-    if(xSemaphoreTake(salir, portMAX_DELAY))
-    {
-    
-
-    vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
-    
-    if (left && menuState>0) 
-    {
-      menuState -= 1;
-      left = false;
-    }
-    else if (mid) {
-      enterFlag = true;
-      mid = false;
-    }
-    else if (right && menuState<4) {
-      menuState += 1;
-      right = false;
-    }
-
-    SemaphoreHandle_t semaforos[5] = {salir, jugar, comer, asear, comprar};
-
-    String semaforosPrint[5] = {"salir", "jugar", "comer", "asear", "comprar"};
-    Serial.print(semaforosPrint[menuState]);
-
-    if (enterFlag == true) {
-      enterFlag = false;
-      xSemaphoreGive(semaforos[menuState]);
-    }
-
-    }
-  }
-}
 
 void jugarTask(void *p) {
 
@@ -319,7 +316,7 @@ void setup() {
 
   // Create two tasks
   pasivos = xSemaphoreCreateBinary();
-  salir = xSemaphoreCreateBinary();
+  salir = xSemaphoreCreateMutex();
   jugar = xSemaphoreCreateBinary();
   comer = xSemaphoreCreateBinary();
   asear = xSemaphoreCreateBinary();
@@ -329,7 +326,6 @@ void setup() {
   xTaskCreate(buttonTaskRight, "buttonPressRight", 4096, NULL, 10, &botonRight);
   xTaskCreate(idle, "idletask", 4096, NULL, 200, &idleH);
   xTaskCreate(stats, "statsTask", 4096, NULL, 10, &statsH);
-  xTaskCreate(menu, "menuTask", 4096, NULL, 10, &menuH);
 
 
   // Start the FreeRTOS scheduler

@@ -400,7 +400,13 @@ void disminuirVida() {
 }
 
 void muerte() {
+  happiness = 0;
+  saturation = 0;
+  hygiene = 0;
+  age = 0;
+  money = 0;
   Serial.print("kgaste");
+  ESP.restart();
 }
 
 //depresion
@@ -526,11 +532,19 @@ void idle(void *p) {
     char rxbuffAsear[50];
         if(xQueueReceive(asearQ, &(rxbuffAsear), (TickType_t)5)){
           String compararAseo = rxbuffAsear;
-          if(compararAseo == "Jabón Rey") {
+          if(compararAseo == "Jabón Rey" && cantidadAseo[0] > 0) {
             Serial.print("JAAAAAAAABOOOOOOOOON");
+            happiness += 0.5;
+            hygiene += 25;
+            age -= 0.02;
+            cantidadAseo[0] -= 1;
           }
-          else if(compararAseo == "Tío Nacho") {
+          else if(compararAseo == "Tío Nacho" && cantidadAseo[1] > 0) {
             Serial.print("TTTTTTTTTIOOOOOO");
+            happiness -= 0.5;
+            hygiene += 15;
+            age -= 0.04;
+            cantidadAseo[1] -= 1;
           }
           vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
         }
@@ -538,11 +552,27 @@ void idle(void *p) {
       char rxbuffComer[50];
         if(xQueueReceive(comerQ, &(rxbuffComer), (TickType_t)5)){
           String compararComida = rxbuffComer;
-          if(compararComida == "Empanada") {
+          if(compararComida == "Empanada" && cantidadComida[0] > 0) {
+              happiness += 1;
+              saturation += 10;
+              //hygiene -= 0.02;
+              //age += 0.01;
+              cantidadComida[0] -= 1;
             Serial.print("EMPANAAAAADA");
           }
-          else if(compararComida == "Arepa") {
+          else if(compararComida == "Empanada" && cantidadComida[0] >= 0) {
+            Serial.print("NO HAY EMPANADA >:(");
+          }
+          if(compararComida == "Arepa" && cantidadComida[0]) {
+              happiness += 1;
+              saturation -= 15;
+              //hygiene -= 0.02;
+              //age += 0.01;
+              cantidadComida[1] -= 1;
             Serial.print("AREPA CON QUESSSOOOOOOOOOO");
+          }
+          else if(compararComida == "Arepa" && cantidadComida[1] >= 0) {
+            Serial.print("NO HAY AREPA >:(");
           }
           vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
         }
@@ -552,15 +582,23 @@ void idle(void *p) {
           String compararCompra = rxbuffComprar;
           if(compararCompra == "Jabón Rey") {
             Serial.print("JAAAAAAAABOOOOOOOOON COMPRA");
+            cantidadAseo[0] += 1;
+            money -= 20;
           }
           else if(compararCompra == "Tío Nacho") {
             Serial.print("TTTTTTTTTIOOOOOO COMPRA");
+            cantidadAseo[1] += 1;
+            money -= 80;
           }
           else if(compararCompra == "Empanada") {
             Serial.print("EMPANAAAAADA COMPRA");
+            cantidadComida[0] += 1;
+            money -= 10;
           }
           else if(compararCompra == "Arepa") {
             Serial.print("AREPA CON QUESSSOOOOOOOOOO COMPRA");
+            cantidadComida[1] += 1;
+            money -= 35;
           }
           vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
         }
@@ -572,6 +610,7 @@ String juegos[5] = {"Salir", "Moriohtraques", "Lozanoaventuras", "Where's Freddy
           if(true) {
             Serial.print(conteo);
             Serial.print("llegamos");
+            money += conteo;
           
           
           vTaskDelay(1000 * configTICK_RATE_HZ / 1000);

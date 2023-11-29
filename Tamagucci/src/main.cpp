@@ -193,6 +193,7 @@ int saturation = 100;
 int hygiene = 100;
 int money = 0;
 int age = 1;
+String emociones = "aaaa";
 
 //StateMachine
 int state = 0;
@@ -206,7 +207,7 @@ int miniTask = 0;
 int menuState = 0;
 bool enterFlag = false;
 char txbuff[50];
-String actividades[5] = {"Salir", "Jugar", "Comer", "Asear", "Comprar"};
+String actividades[5] = {"Jugar", "Comer", "Asear", "Comprar", "Salir"};
 
 //jugarVariable
 int jugarState = 0;
@@ -218,7 +219,7 @@ String juegos[5] = {"Salir", "Moriohtraques", "Lozanoaventuras", "Where's Freddy
 int comerState = 0;
 bool comerFlag = false;
 char txbuffComer[50];
-String productosComida[3] = {"Salir", "Empanada", "Arepa"};
+String productosComida[3] = {"Salir", "Guanabana", "Papaya"};
 int cantidadComida[2] = {0,0};
 
 //asearVariable
@@ -232,7 +233,7 @@ int cantidadAseo[2] = {0,0};
 int comprarState = 0;
 bool comprarFlag = false;
 char txbuffComprar[50];
-String productos[5] = {"Salir", "Jabón Rey", "Tío Nacho", "Empanada", "Arepa"};
+String productos[5] = {"Salir", "Jabón Rey", "Tío Nacho", "Guanabana", "Papaya"};
 
 //moriohTraquesVariable
 int moriohTraquesState = 0;
@@ -279,7 +280,7 @@ QueueHandle_t moriohTraquesQ;
 
 //FUNCTIONS
 
-void printStats() {
+void drawStats() {
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.drawString(0, 0, "Stats");
   //linea 10
@@ -360,7 +361,7 @@ void drawMenu(int selected) {
 }
 
 
-void drawInventario(int items[4], int select){
+void drawInventario(int select){
   
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.drawString(0, 0, "Inventario");
@@ -369,13 +370,13 @@ void drawInventario(int items[4], int select){
     case(0):{      
       display.drawRect(0, 50, 120, 14);
       display.drawXbm(40, 15, guanabana_width, guanabana_height, guanabana_bits);
-      display.drawString(59, 50, "Guanabana x"+String(items[0]));
+      display.drawString(59, 50, "Guanabana x"+String(cantidadComida[0]));
       break;
     }
     case(1):{
       display.drawRect(0, 50, 120, 14);
       display.drawXbm(40, 15, papaya_width, papaya_height, papaya_bits);
-      display.drawString(59, 50, "Papaya x"+String(items[1]));
+      display.drawString(59, 50, "Papaya x"+String(cantidadComida[1]));
 
       
       break;
@@ -383,13 +384,13 @@ void drawInventario(int items[4], int select){
     case(2):{
       display.drawRect(0, 50, 120, 14);
       display.drawXbm(40, 15, nacho_width, nacho_height, nacho_bits);
-      display.drawString(59, 50, "Tio nacho x"+String(items[2]));
+      display.drawString(59, 50, "Tio nacho x"+String(cantidadAseo[1]));
       break;
     }
     case(3):{
       display.drawRect(0, 50, 120, 14);
       display.drawXbm(40, 15, rey_width, rey_height, rey_bits);
-      display.drawString(59, 50, "Jabon Rey x"+String(items[3]));
+      display.drawString(59, 50, "Jabon Rey x"+String(cantidadAseo[0]));
       break;
     }
     default:{
@@ -471,6 +472,67 @@ void drawTienda(int selected){
 
 }
 
+void drawComer(int selected) {
+    
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.drawString(0, 0, "Comida");
+  display.setTextAlignment(TEXT_ALIGN_CENTER);
+  switch(selected){
+    case(0):{      
+      display.drawRect(0, 50, 120, 14);
+      display.drawXbm(40, 15, guanabana_width, guanabana_height, guanabana_bits);
+      display.drawString(59, 50, "Guanabana x"+String(cantidadComida[0]));
+      break;
+    }
+    case(1):{
+      display.drawRect(0, 50, 120, 14);
+      display.drawXbm(40, 15, papaya_width, papaya_height, papaya_bits);
+      display.drawString(59, 50, "Papaya x"+String(cantidadComida[1]));
+
+      
+      break;
+    }
+    case(2):{
+      display.drawRect(0, 50, 120, 14);
+      display.drawString(59, 35, "Salir");
+      break;
+    }
+    default:{
+      display.drawString(0,0,"LA EMBARRARON ESTE NUMERO NO EXISTE");
+      break;
+    }
+}
+}
+
+void drawAsear(int selected) {
+    
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.drawString(0, 0, "Aseo");
+  display.setTextAlignment(TEXT_ALIGN_CENTER);
+  switch(selected){
+    case(0):{
+      display.drawRect(0, 50, 120, 14);
+      display.drawXbm(40, 15, nacho_width, nacho_height, nacho_bits);
+      display.drawString(59, 50, "Tio nacho x"+String(cantidadAseo[1]));
+      break;
+    }
+    case(1):{
+      display.drawRect(0, 50, 120, 14);
+      display.drawXbm(40, 15, rey_width, rey_height, rey_bits);
+      display.drawString(59, 50, "Jabon Rey x"+String(cantidadAseo[0]));
+      break;
+    }
+    case(2):{
+      display.drawRect(0, 50, 120, 14);
+      display.drawString(59, 35, "Salir");
+      break;
+    }
+    default:{
+      display.drawString(0,0,"LA EMBARRARON ESTE NUMERO NO EXISTE");
+      break;
+    }
+}
+}
 
 int inityTarget = 42;
 int initxTarget = 64;
@@ -577,19 +639,35 @@ void pantalla(void *p) {
         }
 
       }
-    }
-    else if(flagPantalla == 1) //Idle, Aseo, Comer
-    {
-      drawMenu(miniTask);
-    }
-    else if(flagPantalla == 2) //Menu
-    {
-      drawTienda(miniTask);
-    } 
-    else if(flagPantalla == 3) //Jugar
-    {
-      draw
-    }
+      }
+      else if(taskPantalla == 0) //Idle, Aseo, Comer
+      {
+        drawMenu(miniTask);
+      }
+      else if(taskPantalla == 1) //Menu
+      {
+        drawMenu(miniTask);
+      } 
+      else if(taskPantalla == 2) //Jugar
+      {
+        //a
+      }
+      else if(taskPantalla == 3) //Stats
+      {
+        drawStats();
+      }
+      else if(taskPantalla == 4) //Inventario
+      {
+        drawInventario(miniTask);
+      }
+      else if(taskPantalla == 5) //Comer
+      {
+        drawComer(miniTask);
+      }
+      else if(taskPantalla == 6) //Asear
+      {
+        drawAsear(miniTask);
+      }
 
   }
 
@@ -600,7 +678,10 @@ void pantalla(void *p) {
 void stats(void *p) {
   while(1) {
     if (xSemaphoreTake(pasivos, portMAX_DELAY)) {
-      printStats();
+      taskPantalla = 3;
+      miniTask = 0;
+      flagPantalla = true;
+      delay(2000);
     }
   }
 }
@@ -611,9 +692,9 @@ void printInventory() {
   Serial.println(cantidadAseo[0]);
   Serial.print("Tío Nacho: ");
   Serial.println(cantidadAseo[1]);
-  Serial.print("Empanada: ");
+  Serial.print("Guanabana: ");
   Serial.println(cantidadComida[0]);
-  Serial.print("Arepa: ");
+  Serial.print("Papaya: ");
   Serial.println(cantidadComida[1]);
   delay(2000);
 }
@@ -622,7 +703,21 @@ void printInventory() {
 void inventory(void *p) {
   while(1) {
     if (xSemaphoreTake(inventarioSemaphore, portMAX_DELAY)) {
-      printInventory();
+        taskPantalla = 4;
+        miniTask = 0;
+        flagPantalla = true;
+        delay(1000);
+        miniTask = 1;
+        flagPantalla = true;
+        delay(1000);
+        miniTask = 2;
+        flagPantalla = true;
+        delay(1000);
+        miniTask = 3;
+        flagPantalla = true;
+        delay(1000);
+        miniTask = 0;
+
     }
   }
 }
@@ -636,6 +731,9 @@ void menu() {
     {
       menuState -= 1;
       left = false;
+      taskPantalla = 1;
+      miniTask = menuState;
+      flagPantalla = true;
     }
     else if (mid) {
       enterFlag = true;
@@ -644,6 +742,9 @@ void menu() {
     else if (right && menuState<4) {
       menuState += 1;
       right = false;
+      taskPantalla = 1;
+      miniTask = menuState;
+      flagPantalla = true;
     }
     Serial.print(actividades[menuState]);
     Serial.print(enterFlag);
@@ -665,6 +766,9 @@ void asear() {
     {
       asearState -= 1;
       left = false;
+      taskPantalla = 6;
+      miniTask = asearState;
+      flagPantalla = true;
     }
     else if (mid) {
       asearFlag = true;
@@ -673,6 +777,9 @@ void asear() {
     else if (right && asearState<2) {
       asearState += 1;
       right = false;
+      taskPantalla = 6;
+      miniTask = asearState;
+      flagPantalla = true;
     }
     Serial.print(productosAseo[asearState]);
     Serial.print(asearFlag); 
@@ -959,10 +1066,14 @@ void idle(void *p) {
         state = 0;
         xSemaphoreGive(pasivos);
         vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
+        
       }
       if (state == 2) {
         state = 0;
         menu();
+        taskPantalla = 3;
+        miniTask = 0;
+        flagPantalla = true;
         vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
       }
       if (state == 3) {
@@ -970,6 +1081,9 @@ void idle(void *p) {
         xSemaphoreGive(inventarioSemaphore);
         vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
       }
+      taskPantalla = 0;
+      miniTask = 0;
+      flagPantalla = true;
     }
 
     char rxbuff[50];
@@ -977,17 +1091,26 @@ void idle(void *p) {
       String comparar = rxbuff;
       if(comparar == "Asear") {
         Serial.print("SONOS SAPOO");
+        taskPantalla = 6;
+        miniTask = 0;
+        flagPantalla = true;
         asear();
       }
-      if(comparar == "Comer") {
+      else if(comparar == "Comer") {
         Serial.print("SONOS COME MOCOS");
+        taskPantalla = 5;
+        miniTask = 0;
+        flagPantalla = true;
         comer();
       }
-      if(comparar == "Comprar") {
+      else if(comparar == "Comprar") {
         Serial.print("SONOS INFLA LOS STOCKS");
+        taskPantalla = 4;
+        miniTask = 0;
+        flagPantalla = true;
         comprar();
       }
-      if(comparar == "Jugar") {
+      else if(comparar == "Jugar") {
         Serial.print("MORIOH JOGA BONITO");
         jugar();
       }
@@ -1023,7 +1146,7 @@ void idle(void *p) {
       char rxbuffComer[50];
         if(xQueueReceive(comerQ, &(rxbuffComer), (TickType_t)5)){
           String compararComida = rxbuffComer;
-          if(compararComida == "Empanada" && cantidadComida[0] > 0) {
+          if(compararComida == "Guanabana" && cantidadComida[0] > 0) {
               happiness += 1;
               saturation += 10;
               //hygiene -= 0.02;
@@ -1031,19 +1154,19 @@ void idle(void *p) {
               cantidadComida[0] -= 1;
             Serial.print("EMPANAAAAADA");
           }
-          else if(compararComida == "Empanada" && cantidadComida[0] <= 0) {
-            Serial.print("NO HAY EMPANADA >:(");
+          else if(compararComida == "Guanabana" && cantidadComida[0] <= 0) {
+            Serial.print("NO HAY Guanabana >:(");
           }
-          if(compararComida == "Arepa" && cantidadComida[1] > 0) {
+          if(compararComida == "Papaya" && cantidadComida[1] > 0) {
               happiness += 1;
               saturation -= 15;
               //hygiene -= 0.02;
               //age += 0.01;
               cantidadComida[1] -= 1;
-            Serial.print("AREPA CON QUESSSOOOOOOOOOO");
+            Serial.print("Papaya CON QUESSSOOOOOOOOOO");
           }
-          else if(compararComida == "Arepa" && cantidadComida[1] <= 0) {
-            Serial.print("NO HAY AREPA >:(");
+          else if(compararComida == "Papaya" && cantidadComida[1] <= 0) {
+            Serial.print("NO HAY Papaya >:(");
           }
           vTaskDelay(1000 * configTICK_RATE_HZ / 1000);
         }
@@ -1061,13 +1184,13 @@ void idle(void *p) {
             cantidadAseo[1] += 1;
             money -= 80;
           }
-          else if(compararCompra == "Empanada" && money > 9) {
+          else if(compararCompra == "Guanabana" && money > 9) {
             Serial.print("EMPANAAAAADA COMPRA");
             cantidadComida[0] += 1;
             money -= 10;
           }
-          else if(compararCompra == "Arepa" && money > 34) {
-            Serial.print("AREPA CON QUESSSOOOOOOOOOO COMPRA");
+          else if(compararCompra == "Papaya" && money > 34) {
+            Serial.print("Papaya CON QUESSSOOOOOOOOOO COMPRA");
             cantidadComida[1] += 1;
             money -= 35;
           }
@@ -1113,6 +1236,10 @@ void setup() {
   display.setFont(ArialMT_Plain_10);
 
   buttonInit();
+
+  taskPantalla = 0;
+  miniTask = 0;
+  flagPantalla = true;
 
   //Botones
 
